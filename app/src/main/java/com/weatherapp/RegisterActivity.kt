@@ -114,6 +114,22 @@ fun RegisterPage(modifier: Modifier = Modifier) {
             ) {
                 Text("Registrar")
             }
+            Button(
+                onClick = {
+                    name = ""
+                    email = ""
+                    password = ""
+                    repeatPassword = ""
+
+                    Toast.makeText(
+                        activity,
+                        "Campos limpos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            ) {
+                Text("Clear")
+            }
         }
     }
 }

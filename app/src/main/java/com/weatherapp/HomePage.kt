@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.weatherapp.MainViewModel
 
-@Preview(showBackground = true)
 @Composable
 fun HomePage(modifier: Modifier = Modifier.Companion,
              viewModel: MainViewModel){
