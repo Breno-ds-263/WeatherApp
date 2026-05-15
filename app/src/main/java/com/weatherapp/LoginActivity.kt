@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -88,7 +90,7 @@ fun LoginPage(modifier: Modifier = Modifier) {
             visualTransformation = PasswordVisualTransformation()
         )
         Row(modifier = Modifier.padding(10.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             Button(
                 onClick = {
