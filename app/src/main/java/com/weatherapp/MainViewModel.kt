@@ -2,6 +2,7 @@ package com.weatherapp
 
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.maps.model.LatLng
 import com.weatherapp.model.City
 
 class MainViewModel : ViewModel() {
@@ -24,5 +25,10 @@ class MainViewModel : ViewModel() {
             name = "Cidade $i",
             weather = "Carregando clima..."
         )
+    }
+
+    fun add(name: String, location: LatLng? = null) {
+        _cities.add(City(name = name, location = location))
+
     }
 }
