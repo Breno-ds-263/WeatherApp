@@ -100,11 +100,6 @@ fun LoginPage(modifier: Modifier = Modifier) {
                         .addOnCompleteListener(activity) { task ->
                             if (task.isSuccessful) {
                                 Toast.makeText(activity, "Login realizado com sucesso!", Toast.LENGTH_LONG).show()
-                                activity.startActivity(
-                                    Intent(activity, MainActivity::class.java).setFlags(
-                                        FLAG_ACTIVITY_SINGLE_TOP
-                                    )
-                                )
                             } else {
                                 Toast.makeText(
                                     activity,

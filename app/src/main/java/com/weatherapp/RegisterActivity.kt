@@ -110,7 +110,6 @@ fun RegisterPage(modifier: Modifier = Modifier) {
                                     "Registro realizado com sucesso",
                                     Toast.LENGTH_LONG
                                 ).show()
-                                activity.finish()
                             } else {
                                 Toast.makeText(
                                     activity,
