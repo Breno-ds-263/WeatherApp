@@ -6,4 +6,5 @@ plugins {
 
     alias(libs.plugins.secrets.plugin) apply false
     kotlin("plugin.serialization") version "2.2.20" apply false
+    alias(libs.plugins.google.gms.google.services) apply false
 }

@@ -5,7 +5,8 @@ plugins {
 
         id("org.jetbrains.kotlin.plugin.serialization")
         alias(libs.plugins.secrets.plugin)
-    }
+    alias(libs.plugins.google.gms.google.services)
+}
 
     android {
         namespace = "com.weatherapp"
@@ -50,6 +51,7 @@ plugins {
         implementation("com.google.maps.android:maps-compose:8.3.0")
 
         implementation("androidx.navigation:navigation-compose:2.9.8")
+        implementation(libs.firebase.auth)
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
         implementation("androidx.compose.material:material-icons-extended")
         implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
