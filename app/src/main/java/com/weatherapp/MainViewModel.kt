@@ -20,7 +20,8 @@ class MainViewModel : ViewModel() {
         _cities.add(City(name = name))
     }
 
-    private fun createCities() = List(20) { i ->
+    private fun createCities() = List(0
+    ) { i ->
         City(
             name = "Cidade $i",
             weather = "Carregando clima..."
