@@ -1,8 +1,6 @@
 package com.weatherapp
 
 import android.app.Activity
-import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -29,9 +27,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+// Imports necessários para salvar o usuário no Realtime Database / Firestore
+import com.weatherapp.db.fb.FBDatabase
+import com.weatherapp.db.fb.toFBUser
+import com.weatherapp.model.User
 import com.weatherapp.ui.theme.WeatherAppTheme
 
 class RegisterActivity : ComponentActivity() {
@@ -42,13 +43,11 @@ class RegisterActivity : ComponentActivity() {
             WeatherAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     RegisterPage(modifier = Modifier.padding(innerPadding))
-
                 }
             }
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
@@ -105,11 +104,17 @@ fun RegisterPage(modifier: Modifier = Modifier) {
                     Firebase.auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(activity) { task ->
                             if (task.isSuccessful) {
+                                // Passo 4: Salvando os dados customizados no banco do Firebase
+                                FBDatabase().register(User(name, email).toFBUser())
+
                                 Toast.makeText(
                                     activity,
                                     "Registro realizado com sucesso",
                                     Toast.LENGTH_LONG
                                 ).show()
+
+                                // Opcional: Você pode fechar a Activity aqui se quiser voltar para o Login
+                                // activity.finish()
                             } else {
                                 Toast.makeText(
                                     activity,
@@ -146,5 +151,3 @@ fun RegisterPage(modifier: Modifier = Modifier) {
         }
     }
 }
-
-

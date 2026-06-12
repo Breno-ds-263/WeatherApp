@@ -3,6 +3,7 @@ package com.weatherapp
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.model.LatLng
 import com.weatherapp.db.fb.FBCity
 import com.weatherapp.db.fb.FBDatabase
@@ -42,5 +43,15 @@ class MainViewModel (private val db: FBDatabase): ViewModel(),
     }
     override fun onCityRemoved(city: FBCity) {
         _cities.remove(city.toCity())
+    }
+}
+
+class MainViewModelFactory(private val db : FBDatabase) :
+    ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            return MainViewModel(db) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
