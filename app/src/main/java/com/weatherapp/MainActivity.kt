@@ -63,12 +63,16 @@ class MainActivity : ComponentActivity() {
 
 
             WeatherAppTheme {
-                if (showDialog) CityDialog(
-                    onDismiss = { showDialog = false },
-                    onConfirm = { city ->
-                        if (city.isNotBlank()) viewModel.add(city)
-                        showDialog = false
-                    })
+                if (showDialog)
+                    CityDialog(
+                        onDismiss = { showDialog = false },
+                        onConfirm = { city ->
+                            if (city.isNotBlank()) {
+                                viewModel.addCity(city)
+                            }
+                            showDialog = false
+                        }
+                    )
 
                 Scaffold(
                     topBar = {

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import com.weatherapp.model.Weather
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,21 +36,26 @@ import androidx.compose.ui.unit.sp
 import com.weatherapp.model.City
 
 @Composable
-fun ListPage(modifier: Modifier = Modifier,
-             viewModel: MainViewModel) {
+fun ListPage(
+    modifier: Modifier = Modifier,
+    viewModel: MainViewModel
+) {
     val activity = LocalActivity.current as Activity
     val cityList = viewModel.cities
-
 
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        items(cityList, key = { it.name }) { city ->
+        items(
+            items = cityList,
+            key = { it.name }
+        ) { city ->
 
             CityItem(
                 city = city,
+                weather = viewModel.weather(city.name),
 
                 onClose = {
                     Toast.makeText(
@@ -57,6 +63,7 @@ fun ListPage(modifier: Modifier = Modifier,
                         "Remover ${city.name}",
                         Toast.LENGTH_SHORT
                     ).show()
+
                     viewModel.remove(city)
                 },
 
@@ -72,35 +79,55 @@ fun ListPage(modifier: Modifier = Modifier,
     }
 }
 
-
-
-
 @Composable
 fun CityItem(
     city: City,
+    weather: Weather,
     onClick: () -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
+    val desc =
+        if (weather == Weather.LOADING)
+            "Carregando clima..."
+        else
+            weather.desc
+
     Row(
-        modifier = modifier.fillMaxWidth().padding(8.dp).clickable { onClick() },
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable { onClick() },
+
         verticalAlignment = Alignment.CenterVertically
     ) {
+
         Icon(
             Icons.Rounded.FavoriteBorder,
             contentDescription = ""
         )
+
         Spacer(modifier = Modifier.size(12.dp))
-        Column(modifier = modifier.weight(1f)) {
-            Text(modifier = Modifier,
+
+        Column(modifier = Modifier.weight(1f)) {
+
+            Text(
                 text = city.name,
-                fontSize = 24.sp)
-            Text(modifier = Modifier,
-                text = city.weather?:"Carregando clima...",
-                fontSize = 16.sp)
+                fontSize = 24.sp
+            )
+
+            Text(
+                text = desc,
+                fontSize = 16.sp
+            )
         }
+
         IconButton(onClick = onClose) {
-            Icon(Icons.Filled.Close, contentDescription = "Close")
+            Icon(
+                Icons.Filled.Close,
+                contentDescription = "Close"
+            )
         }
     }
 }
