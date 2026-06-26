@@ -31,6 +31,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.weatherapp.api.WeatherService
 import com.weatherapp.db.fb.FBDatabase
 import com.weatherapp.ui.CityDialog
 import com.weatherapp.ui.nav.BottomNavBar
@@ -45,10 +46,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            // Passo 3: Inicializando o banco de dados Firebase e a Factory do ViewModel
             val fbDB = remember { FBDatabase() }
-            val viewModel: MainViewModel = viewModel(
-                factory = MainViewModelFactory(fbDB)
+            val weatherService = remember { WeatherService() }
+            val viewModel : MainViewModel = viewModel(
+                factory = MainViewModelFactory(fbDB, weatherService)
             )
 
             val navController = rememberNavController()
@@ -59,6 +60,7 @@ class MainActivity : ComponentActivity() {
                 contract = ActivityResultContracts.RequestPermission(),
                 onResult = {}
             )
+
 
             WeatherAppTheme {
                 if (showDialog) CityDialog(

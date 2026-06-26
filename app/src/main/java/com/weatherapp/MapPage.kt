@@ -48,19 +48,25 @@ fun MapPage(modifier: Modifier = Modifier,
 
 
 
-    GoogleMap( modifier = modifier.fillMaxSize(), onMapClick = {
-        viewModel.add("Cidade@${it.latitude}:${it.longitude}", location = it) },
+    GoogleMap(
+        modifier = modifier.fillMaxSize(),
+        onMapClick = {
+            viewModel.addCity(it)
+        },
         cameraPositionState = camPosState,
         properties = MapProperties(isMyLocationEnabled = hasLocationPermission),
         uiSettings = MapUiSettings(myLocationButtonEnabled = true)
     ) {
         viewModel.cities.forEach {
             if (it.location != null) {
-                Marker( state = MarkerState(position = it.location),
-                    title = it.name, snippet = "${it.location}")
+                Marker(
+                    state = MarkerState(position = it.location),
+                    title = it.name,
+                    snippet = "${it.location}"
+                )
             }
         }
-
-
     }
+
+
 }
