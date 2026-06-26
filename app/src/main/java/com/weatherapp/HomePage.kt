@@ -82,14 +82,14 @@ fun HomePage(
 
                         Text(
                             text = weather.desc,
-                            fontSize = 22.sp
+                            fontSize = 15.sp
                         )
 
                         Spacer(modifier = Modifier.size(12.dp))
 
                         Text(
                             text = "Temp: ${weather.temp}℃",
-                            fontSize = 22.sp
+                            fontSize = 15.sp
                         )
                     }
                 }
@@ -150,28 +150,28 @@ fun ForecastItem(
 
             Text(
                 text = forecast.weather,
-                fontSize = 24.sp
+                fontSize = 15.sp
             )
 
             Row {
 
                 Text(
                     text = forecast.date,
-                    fontSize = 20.sp
+                    fontSize = 12.sp
                 )
 
                 Spacer(modifier = Modifier.size(12.dp))
 
                 Text(
                     text = "Min: $tempMin℃",
-                    fontSize = 16.sp
+                    fontSize = 12.sp
                 )
 
                 Spacer(modifier = Modifier.size(12.dp))
 
                 Text(
                     text = "Max: $tempMax℃",
-                    fontSize = 16.sp
+                    fontSize = 12.sp
                 )
 
             }
