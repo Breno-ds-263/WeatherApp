@@ -2,25 +2,19 @@ package com.weatherapp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +29,8 @@ fun HomePage(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel
 ) {
+
+    val city = viewModel.cities.find { it.name == viewModel.city }
 
     Column {
 
@@ -61,22 +57,51 @@ fun HomePage(
 
             Row {
 
-                AsyncImage( // Substitui o Icon
+                AsyncImage(
                     model = viewModel.weather(viewModel.city!!).imgUrl,
-                    modifier = modifier.size(140.dp),
+                    modifier = Modifier.size(140.dp),
                     error = painterResource(id = R.drawable.loading),
                     contentDescription = "Imagem"
                 )
-
 
                 Column {
 
                     Spacer(modifier = Modifier.size(12.dp))
 
-                    Text(
-                        text = viewModel.city ?: "Selecione uma cidade...",
-                        fontSize = 28.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Text(
+                            text = city?.name ?: "Selecione uma cidade...",
+                            fontSize = 28.sp
+                        )
+
+                        Spacer(modifier = Modifier.size(8.dp))
+
+                        city?.let {
+
+                            val icon: ImageVector =
+                                if (it.isMonitored)
+                                    Icons.Filled.Notifications
+                                else
+                                    Icons.Outlined.Notifications
+
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = "Monitorada?",
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .clickable {
+                                        viewModel.update(
+                                            it.copy(
+                                                isMonitored = !it.isMonitored
+                                            )
+                                        )
+                                    }
+                            )
+                        }
+                    }
 
                     viewModel.city?.let { name ->
 
@@ -142,9 +167,9 @@ fun ForecastItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        AsyncImage( // Substitui o Icon
+        AsyncImage(
             model = forecast.imgUrl,
-            modifier = modifier.size(70.dp),
+            modifier = Modifier.size(70.dp),
             error = painterResource(id = R.drawable.loading),
             contentDescription = "Imagem"
         )

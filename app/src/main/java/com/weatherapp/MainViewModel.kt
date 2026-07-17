@@ -57,6 +57,11 @@ class MainViewModel(
 
     fun remove(city: City) {
         db.remove(city.toFBCity())
+
+    }
+
+    fun update(city: City) {
+        db.update(city.toFBCity())
     }
 
     fun addCity(name: String) {
