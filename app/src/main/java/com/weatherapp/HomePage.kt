@@ -11,6 +11,8 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.weatherapp.model.Forecast
+import com.weatherapp.model.Weather
 import java.text.DecimalFormat
 
 @Composable
@@ -29,8 +32,8 @@ fun HomePage(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel
 ) {
-
-    val city = viewModel.cities.find { it.name == viewModel.city }
+    val cities by viewModel.cities.collectAsState()
+    val city = cities[viewModel.city]
 
     Column {
 
@@ -79,10 +82,10 @@ fun HomePage(
 
                         Spacer(modifier = Modifier.size(8.dp))
 
-                        city?.let {
+                        city?.let { c ->
 
                             val icon: ImageVector =
-                                if (it.isMonitored)
+                                if (c.isMonitored)
                                     Icons.Filled.Notifications
                                 else
                                     Icons.Outlined.Notifications
@@ -94,8 +97,8 @@ fun HomePage(
                                     .size(32.dp)
                                     .clickable {
                                         viewModel.update(
-                                            it.copy(
-                                                isMonitored = !it.isMonitored
+                                            c.copy(
+                                                isMonitored = !c.isMonitored
                                             )
                                         )
                                     }

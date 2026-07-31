@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.core.util.Consumer
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -87,6 +88,8 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             var showDialog by remember { mutableStateOf(false) }
 
+            val user by viewModel.user.collectAsState()
+
             val currentRoute = navController.currentBackStackEntryAsState()
             val showButton =
                 currentRoute.value?.destination?.hasRoute(Route.List::class) == true
@@ -125,7 +128,7 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         TopAppBar(
                             title = {
-                                val name = viewModel.user?.name ?: "[carregando...]"
+                                val name = user?.name ?: "[carregando...]"
                                 Text("Bem-vindo/a! $name")
                             },
                             actions = {

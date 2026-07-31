@@ -2,96 +2,56 @@ package com.weatherapp.api
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.util.Log
+import androidx.core.graphics.drawable.toBitmap
 import coil.ImageLoader
 import coil.request.ImageRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-
-class WeatherService (private val context : Context){
-
+class WeatherService (private val context : Context) {
     private var weatherAPI: WeatherServiceAPI
-
     private val imageLoader = ImageLoader.Builder(context)
         .allowHardware(false).build()
-
-    fun getBitmap(imgUrl: String, onResponse: (Bitmap?) -> Unit) {
-        val request = ImageRequest.Builder(context)
-            .data(imgUrl).allowHardware(false).target(
-                onSuccess = { drawable ->
-                    val bitmap = (drawable as BitmapDrawable).bitmap
-                    onResponse(bitmap)
-                },
-                onError = { /* handle failure */ }
-            )
-            .build()
-        imageLoader.enqueue(request)
-    }
-
-
-
-
     init {
         val retrofitAPI = Retrofit.Builder()
             .baseUrl(WeatherServiceAPI.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
+            .addConverterFactory(GsonConverterFactory.create()).build()
         weatherAPI = retrofitAPI.create(WeatherServiceAPI::class.java)
     }
-
-    fun getName(lat: Double, lng: Double, onResponse: (String?) -> Unit) {
-        search("$lat,$lng") { loc -> onResponse(loc?.name) }
+    suspend fun getName(lat: Double, lng: Double):String? = withContext(Dispatchers.IO){
+        search("$lat,$lng")?.name // retorno
+    }
+    suspend fun getLocation(name: String): com.google.android.gms.maps.model.LatLng? = withContext(Dispatchers.IO) {
+        val loc = search(name)
+        if (loc?.lat != null && loc.lon != null) com.google.android.gms.maps.model.LatLng(loc.lat!!,
+            loc.lon!!
+        ) else null
     }
 
-    fun getLocation(name: String, onResponse: (Double?, Double?) -> Unit) {
-        search(name) { loc -> onResponse(loc?.lat, loc?.lon) }
+    private fun search(query: String) : APILocation? {
+        val call: Call<List<APILocation>?> = weatherAPI.search(query)
+        val apiLoc = call.execute().body()
+        return if (!apiLoc.isNullOrEmpty()) apiLoc[0] else null
     }
 
-    private fun search(query: String, onResponse: (APILocation?) -> Unit) {
-        val call = weatherAPI.search(query)
+    suspend fun getWeather(name: String): APICurrentWeather? =
+        withContext(Dispatchers.IO) {
+            val call: Call<APICurrentWeather?> = weatherAPI.weather(name)
+            call.execute().body() // retorno
+        }
 
-        call.enqueue(object : Callback<List<APILocation>?> {
-            override fun onResponse(
-                call: Call<List<APILocation>?>,
-                response: Response<List<APILocation>?>
-            ) {
-                onResponse(response.body()?.let { if (it.isNotEmpty()) it[0] else null })
-            }
-
-            override fun onFailure(
-                call: Call<List<APILocation>?>,
-                t: Throwable
-            ) {
-                Log.w("WeatherApp WARNING", "" + t.message)
-                onResponse(null)
-            }
-        })
-    }
-
-    private fun <T> enqueue(call: Call<T?>, onResponse: ((T?) -> Unit)? = null) {
-        call.enqueue(object : Callback<T?> {
-            override fun onResponse(call: Call<T?>, response: Response<T?>) {
-                onResponse?.invoke(response.body())
-            }
-
-            override fun onFailure(call: Call<T?>, t: Throwable) {
-                Log.w("WeatherApp WARNING", "" + t.message)
-            }
-        })
-    }
-
-    fun getWeather(name: String, onResponse: (APICurrentWeather?) -> Unit) {
-        val call = weatherAPI.weather(name)
-        enqueue(call) { onResponse.invoke(it) }
-    }
-
-    fun getForecast(name: String, onResponse : (APIWeatherForecast?) -> Unit) {
-        val call: Call<APIWeatherForecast?> = weatherAPI.forecast(name)
-        enqueue(call) { onResponse.invoke(it) }
+    suspend fun getForecast(name: String) : APIWeatherForecast? =
+        withContext(Dispatchers.IO) {
+            val call: Call<APIWeatherForecast?> = weatherAPI.forecast(name)
+            call.execute().body() // retorno
+        }
+    suspend fun getBitmap(imgUrl: String) : Bitmap? = withContext(Dispatchers.IO) {
+        val request = ImageRequest.Builder(context).data(imgUrl)
+            .allowHardware(false).build()
+        val response = imageLoader.execute(request)
+        response.drawable?.toBitmap()
     }
 }

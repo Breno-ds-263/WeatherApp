@@ -2,6 +2,7 @@ package com.weatherapp
 
 import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +28,8 @@ fun MapPage(
 ) {
 
     val camPosState = rememberCameraPositionState()
+    val cities by viewModel.cities.collectAsState()
+    val weatherMap by viewModel.weather.collectAsState()
 
     val context = LocalContext.current
 
@@ -53,11 +56,11 @@ fun MapPage(
         )
     ) {
 
-        viewModel.cities.forEach { city ->
+        cities.values.forEach { city ->
 
             city.location?.let { location ->
 
-                val weather = viewModel.weather(city.name)
+                val weather = weatherMap[city.name] ?: viewModel.weather(city.name)
 
                 val image = weather.bitmap ?:
                         getDrawable(context, R.drawable.loading)!!.toBitmap()

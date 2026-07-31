@@ -11,10 +11,13 @@ import com.weatherapp.model.City
 import com.weatherapp.model.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class Repository ( private val fbDB: FBDatabase,
-                   private val localDB : LocalDatabase) : FBDatabase.Listener {
+class Repository (
+    private val fbDB: FBDatabase,
+    private val localDB : LocalDatabase)
+{
     interface Listener {
         fun onUserLoaded(user: User)
         fun onUserSignOut()
@@ -26,20 +29,39 @@ class Repository ( private val fbDB: FBDatabase,
     fun setListener(listener: Listener? = null) {
         this.listener = listener
     }
+
     private var ioScope : CoroutineScope = CoroutineScope(Dispatchers.IO)
     private var cityMap = emptyMap<String, City>()
+    val cities = localDB.getCities().map {
+            list -> list.map { city -> city.toCity() }
+    }
+    val user = fbDB.user.map { it.toUser() }
     init {
-        fbDB.setListener(this)
         ioScope.launch {
-            localDB.getCities().collect { localCityList ->
-                val cityList = localCityList.map { it.toCity() }
+            user.collect { listener?.onUserLoaded(it) }
+        }
+        ioScope.launch {
+            // Monitora fbDB e atualiza localDB com mudanças
+            // Detecta mudanças (inserções, alterações e deleções)
+            // e faz só o necessário
+            fbDB.cities.collect { fbCityList ->
+                val cityList = fbCityList.map { it.toCity() }
                 val nameList = cityList.map { it.name }
-                val deletedCities = cityMap.filter { it.key !in nameList}.values
-                val updatedCities = cityList.filter { it.name in cityMap.keys }
-                val newCities = cityList.filter { it.name !in cityMap.keys }
-                newCities.forEach { listener?.onCityAdded(it) }
-                updatedCities.forEach { listener?.onCityUpdated(it) }
-                deletedCities.forEach { listener?.onCityRemoved(it) }
+                val deletedCities = cityMap.filter { it.key !in nameList}
+                val updatedCities = cityList.filter {it.name in cityMap.keys}
+                val newCities = cityList.filter { it.name !in cityMap.keys}
+                newCities.forEach {
+                    localDB.insert(it.toLocalCity())
+                    listener?.onCityAdded(it)
+                }
+                updatedCities.forEach {
+                    localDB.update(it.toLocalCity())
+                    listener?.onCityUpdated(it)
+                }
+                deletedCities.forEach {
+                    localDB.delete(it.value.toLocalCity())
+                    listener?.onCityRemoved(it.value)
+                }
                 cityMap = cityList.associateBy { it.name }
             }
         }
@@ -47,15 +69,4 @@ class Repository ( private val fbDB: FBDatabase,
     fun add(city: City) = fbDB.add(city.toFBCity())
     fun remove(city: City) = fbDB.remove(city.toFBCity())
     fun update(city: City) = fbDB.update(city.toFBCity())
-    override fun onUserLoaded(user: FBUser)= listener?.onUserLoaded(user.toUser(fbDB.auth.currentUser?.uid))?:Unit
-    override fun onUserSignOut() = listener?.onUserSignOut()?:Unit
-    override fun onCityAdded(city: FBCity) {
-        localDB.insert(city.toCity().toLocalCity())
-    }
-    override fun onCityUpdated(city: FBCity) {
-        localDB.update(city.toCity().toLocalCity())
-    }
-    override fun onCityRemoved(city: FBCity) {
-        localDB.delete(city.toCity().toLocalCity())
-    }
 }
