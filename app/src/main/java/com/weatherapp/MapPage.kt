@@ -2,6 +2,7 @@ package com.weatherapp
 
 import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.scale
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -43,6 +45,7 @@ fun MapPage(
     }
 
     GoogleMap(
+
         modifier = modifier,
         onMapClick = {
             viewModel.addCity(it)
@@ -56,7 +59,21 @@ fun MapPage(
         )
     ) {
 
-        cities.values.forEach { city ->
+        val cities = viewModel.cities.collectAsStateWithLifecycle(emptyMap()).value
+        val weatherMap = viewModel.weather
+            .collectAsStateWithLifecycle(emptyMap()).value
+        cities.values.forEach {
+            if (it.location != null) {
+                val weather = weatherMap[it.name]?:Weather.LOADING
+                LaunchedEffect(it.name) {
+                    viewModel.loadWeather(it.name)
+                }
+                LaunchedEffect(weather) {
+                    viewModel.loadBitmap(it.name)
+                }
+
+
+                cities.values.forEach { city ->
 
             city.location?.let { location ->
 
@@ -82,5 +99,7 @@ fun MapPage(
                 )
             }
         }
+    }
+}
     }
 }

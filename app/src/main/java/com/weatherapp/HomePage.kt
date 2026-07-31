@@ -11,8 +11,7 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.weatherapp.model.Forecast
 import com.weatherapp.model.Weather
@@ -32,9 +32,6 @@ fun HomePage(
     modifier: Modifier = Modifier,
     viewModel: MainViewModel
 ) {
-    val cities by viewModel.cities.collectAsState()
-    val city = cities[viewModel.city]
-
     Column {
 
         if (viewModel.city == null) {
@@ -57,11 +54,23 @@ fun HomePage(
             }
 
         } else {
+            val cities = viewModel.cities.collectAsStateWithLifecycle(emptyMap()).value
+            val city = cities[viewModel.city!!]
+            val weather = viewModel.weather.collectAsStateWithLifecycle(emptyMap())
+                .value[viewModel.city!!]
+            val icon = if (city?.isMonitored == true) Icons.Filled.Notifications else
+                Icons.Outlined.Notifications
+            val forecasts = viewModel.forecast.collectAsStateWithLifecycle(emptyMap())
+                .value[viewModel.city!!]
+
+            LaunchedEffect(viewModel.city!!) {
+                viewModel.loadForecast(viewModel.city!!)
+            }
 
             Row {
 
                 AsyncImage(
-                    model = viewModel.weather(viewModel.city!!).imgUrl,
+                    model = weather?.imgUrl ?: viewModel.weather(viewModel.city!!).imgUrl,
                     modifier = Modifier.size(140.dp),
                     error = painterResource(id = R.drawable.loading),
                     contentDescription = "Imagem"
@@ -84,12 +93,6 @@ fun HomePage(
 
                         city?.let { c ->
 
-                            val icon: ImageVector =
-                                if (c.isMonitored)
-                                    Icons.Filled.Notifications
-                                else
-                                    Icons.Outlined.Notifications
-
                             Icon(
                                 imageVector = icon,
                                 contentDescription = "Monitorada?",
@@ -108,30 +111,30 @@ fun HomePage(
 
                     viewModel.city?.let { name ->
 
-                        val weather = viewModel.weather(name)
+                        val w = weather ?: viewModel.weather(name)
 
                         Spacer(modifier = Modifier.size(12.dp))
 
                         Text(
-                            text = weather.desc,
+                            text = w.desc,
                             fontSize = 15.sp
                         )
 
                         Spacer(modifier = Modifier.size(12.dp))
 
                         Text(
-                            text = "Temp: ${weather.temp}℃",
+                            text = "Temp: ${w.temp}℃",
                             fontSize = 15.sp
                         )
                     }
                 }
             }
 
-            viewModel.forecast(viewModel.city!!)?.let { forecasts ->
+            forecasts?.let { forecastsList ->
 
                 LazyColumn {
 
-                    items(forecasts) { forecast ->
+                    items(forecastsList) { forecast ->
 
                         ForecastItem(
                             forecast = forecast,

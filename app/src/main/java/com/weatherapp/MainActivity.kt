@@ -44,6 +44,7 @@ import com.weatherapp.ui.nav.MainNavHost
 import com.weatherapp.ui.nav.Route
 import com.weatherapp.ui.theme.WeatherAppTheme
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.weatherapp.db.local.LocalDatabase
 import com.weatherapp.repo.Repository
 
@@ -72,6 +73,7 @@ class MainActivity : ComponentActivity() {
                 )
             )
 
+
             DisposableEffect(Unit) {
                 val listener = Consumer<Intent> { intent ->
                     viewModel.city = intent.getStringExtra("city")
@@ -85,10 +87,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            val user = viewModel.user.collectAsStateWithLifecycle(null).value
+
             val navController = rememberNavController()
             var showDialog by remember { mutableStateOf(false) }
-
-            val user by viewModel.user.collectAsState()
 
             val currentRoute = navController.currentBackStackEntryAsState()
             val showButton =
