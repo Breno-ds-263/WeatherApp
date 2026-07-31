@@ -5,7 +5,7 @@ class FBUser {
     var name : String? = null
     var email : String? = null
 
-    fun toUser() = User(name!!, email!!)
+    fun toUser(uid: String? = null) = User(name!!, email!!, uid)
 }
 
 fun User.toFBUser() : FBUser {

@@ -43,6 +43,9 @@ import com.weatherapp.ui.nav.MainNavHost
 import com.weatherapp.ui.nav.Route
 import com.weatherapp.ui.theme.WeatherAppTheme
 
+import com.weatherapp.db.local.LocalDatabase
+import com.weatherapp.repo.Repository
+
 class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -56,9 +59,13 @@ class MainActivity : ComponentActivity() {
             val weatherService = remember { WeatherService(this) }
             val forecastMonitor = remember { ForecastMonitor(this) }
 
+            val repository = remember(fbDB) {
+                Repository(fbDB, LocalDatabase(this, fbDB.auth.currentUser?.uid ?: "default"))
+            }
+
             val viewModel: MainViewModel = viewModel(
                 factory = MainViewModelFactory(
-                    fbDB,
+                    repository,
                     weatherService,
                     forecastMonitor
                 )
