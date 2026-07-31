@@ -85,9 +85,20 @@ class MainActivity : ComponentActivity() {
                 currentRoute.value?.destination?.hasRoute(Route.List::class) == true
 
             val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.RequestPermission(),
+                contract = ActivityResultContracts.RequestMultiplePermissions(),
                 onResult = {}
             )
+
+            LaunchedEffect(Unit) {
+                val permissions = mutableListOf(
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    permissions.add(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+                launcher.launch(permissions.toTypedArray())
+            }
 
             WeatherAppTheme {
 
@@ -152,8 +163,6 @@ class MainActivity : ComponentActivity() {
                     Box(
                         modifier = Modifier.padding(innerPadding)
                     ) {
-
-                        launcher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
                         MainNavHost(
                             navController = navController,

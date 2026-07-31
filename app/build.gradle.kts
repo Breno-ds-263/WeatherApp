@@ -1,6 +1,7 @@
 import java.util.Properties
 
 plugins {
+        id("com.google.devtools.ksp") version "2.3.4"
         alias(libs.plugins.android.application)
         alias(libs.plugins.kotlin.android)
         alias(libs.plugins.kotlin.compose)
@@ -42,20 +43,23 @@ plugins {
             }
         }
         compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_11
-            targetCompatibility = JavaVersion.VERSION_11
+            sourceCompatibility = JavaVersion.VERSION_21
+            targetCompatibility = JavaVersion.VERSION_21
         }
         kotlinOptions {
-            jvmTarget = "11"
+            jvmTarget = "21"
         }
         buildFeatures {
             compose = true
             buildConfig = true
-
         }
     }
 
     dependencies {
+        val room_version = "2.8.4"
+        implementation("androidx.room:room-runtime:$room_version")
+        implementation("androidx.room:room-ktx:$room_version")
+        ksp("androidx.room:room-compiler:$room_version")
         implementation("com.google.android.gms:play-services-maps:20.0.0")
         implementation("com.google.android.gms:play-services-location:21.3.0")
         implementation("com.google.maps.android:maps-compose:8.3.0")

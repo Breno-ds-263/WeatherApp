@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -50,16 +49,17 @@ class ForecastWorker(context: Context,
         // ID = hashCode: para substituir ou remover notificações
         notificationManager.notify(cityName.hashCode(), builder.build())
     }
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun createNotificationChannel() {
-        val name = "WeatherApp"
-        val descriptionText = "WeatherApp Notifications"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(CHANNEL_ID, name, importance)
-            .apply { description = descriptionText }
-        val notificationManager: NotificationManager = this.applicationContext
-            .getSystemService(Context.NOTIFICATION_SERVICE)
-                as NotificationManager
-        notificationManager.createNotificationChannel(channel)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "WeatherApp"
+            val descriptionText = "WeatherApp Notifications"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance)
+                .apply { description = descriptionText }
+            val notificationManager: NotificationManager = this.applicationContext
+                .getSystemService(Context.NOTIFICATION_SERVICE)
+                    as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 }

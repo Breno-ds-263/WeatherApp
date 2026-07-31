@@ -54,6 +54,10 @@ fun ListPage(
                 city = city,
                 weather = viewModel.weather(city.name),
 
+                onMonitoredClick = {
+                    viewModel.update(city.copy(isMonitored = !city.isMonitored))
+                },
+
                 onClose = {
                     Toast.makeText(
                         activity,
@@ -80,6 +84,7 @@ fun CityItem(
     weather: Weather,
     onClick: () -> Unit,
     onClose: () -> Unit,
+    onMonitoredClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -126,11 +131,13 @@ fun CityItem(
 
                 Spacer(modifier = Modifier.size(8.dp))
 
-                Icon(
-                    imageVector = icon,
-                    contentDescription = "Monitorada?",
-                    modifier = Modifier.size(24.dp)
-                )
+                IconButton(onClick = onMonitoredClick) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = "Monitorada?",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
 
             Text(
